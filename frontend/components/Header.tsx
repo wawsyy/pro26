@@ -2,12 +2,17 @@
 
 import Image from "next/image";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { useChainId } from "wagmi";
-import { useFhevm } from "../fhevm/useFhevm";
+import { useAccount, useChainId } from "wagmi";
 
 export function Header() {
   const chainId = useChainId();
-  const { isLoaded: fhevmLoaded } = useFhevm();
+  const { isConnected, status: accountStatus } = useAccount();
+
+  const fhevmIndicator = {
+    label: isConnected ? "Ready" : "Connect wallet",
+    color: isConnected ? "bg-green-500" : "bg-yellow-500",
+    subtleHint: isConnected ? "" : " (waiting)",
+  };
 
   const getNetworkName = (id: number) => {
     switch (id) {
@@ -31,10 +36,15 @@ export function Header() {
         <div className="flex flex-col">
           <h1 className="text-2xl font-bold text-gray-900">Power Usage Log</h1>
           <div className="flex items-center gap-2 text-sm text-gray-600">
-            <div className={`w-2 h-2 rounded-full ${fhevmLoaded ? 'bg-green-500' : 'bg-yellow-500'}`} />
-            <span>FHEVM: {fhevmLoaded ? 'Ready' : 'Loading'}</span>
+            <div className={`w-2 h-2 rounded-full ${fhevmIndicator.color}`} />
+            <span>
+              FHEVM: {fhevmIndicator.label}
+              {fhevmIndicator.subtleHint}
+            </span>
             <span>•</span>
             <span>Network: {getNetworkName(chainId)}</span>
+            <span>•</span>
+            <span>Status: {accountStatus}</span>
           </div>
         </div>
       </div>
