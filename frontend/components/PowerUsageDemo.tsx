@@ -9,7 +9,7 @@
  */
 
 import { useState, useEffect, useRef, useMemo } from "react";
-import { useAccount, useChainId, usePublicClient } from "wagmi";
+import { useAccount, useChainId, usePublicClient, useWalletClient } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { BrowserProvider } from "ethers";
 import { useFhevm } from "../fhevm/useFhevm";
@@ -23,7 +23,7 @@ export const PowerUsageDemo = () => {
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
   const publicClient = usePublicClient();
-  const { data: walletClient } = useAccount();
+  const { data: walletClient } = useWalletClient();
   
   const { storage: fhevmDecryptionSignatureStorage } = useInMemoryStorage();
   const ethersSigner = useEthersSigner({ chainId });
