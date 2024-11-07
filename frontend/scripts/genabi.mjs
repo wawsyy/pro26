@@ -4,6 +4,14 @@ import * as path from "path";
 
 const CONTRACT_NAME = "PowerUsage";
 
+// Skip when running inside Vercel or when explicitly disabled
+if (process.env.VERCEL === "1" || process.env.SKIP_GENABI === "1") {
+  console.log(
+    "Skipping ABI generation (running inside CI or SKIP_GENABI=1). Using committed ABI files."
+  );
+  process.exit(0);
+}
+
 // <root>/pro26
 const rel = "..";
 
