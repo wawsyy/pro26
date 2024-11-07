@@ -9,9 +9,14 @@
  */
 
 import { useState, useEffect, useRef, useMemo } from "react";
-import { useAccount, useChainId, usePublicClient, useWalletClient } from "wagmi";
+import {
+  useAccount,
+  useChainId,
+  usePublicClient,
+  useWalletClient,
+} from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { BrowserProvider } from "ethers";
+import { BrowserProvider, JsonRpcSigner } from "ethers";
 import { useFhevm } from "../fhevm/useFhevm";
 import { useInMemoryStorage } from "../hooks/useInMemoryStorage";
 import { useEthersSigner } from "../hooks/useEthersSigner";
@@ -39,16 +44,20 @@ export const PowerUsageDemo = () => {
   // Convert wagmi provider to ethers provider
   const ethersReadonlyProvider = publicClient ? new BrowserProvider(publicClient as any) : undefined;
 
-  const sameChainRef = useRef((cid: number | undefined) => cid === chainId);
-  const sameSignerRef = useRef(async (signer: any) => {
-    if (!signer || !address) return false;
-    try {
-      const signerAddress = await signer.getAddress();
-      return signerAddress.toLowerCase() === address.toLowerCase();
-    } catch {
-      return false;
-    }
-  });
+  const sameChainRef = useRef<(cid: number | undefined) => boolean>(() => false);
+  useEffect(() => {
+    sameChainRef.current = (cid) => cid === chainId;
+  }, [chainId]);
+
+  const sameSignerRef = useRef<
+    (signer: JsonRpcSigner | undefined) => boolean
+  >(() => false);
+  useEffect(() => {
+    sameSignerRef.current = (signer) => {
+      if (!signer || !ethersSigner) return false;
+      return signer === ethersSigner;
+    };
+  }, [ethersSigner]);
 
   // For local network, use publicClient if available, otherwise use walletClient
   // FHEVM needs a provider that can make RPC calls
